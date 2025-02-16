@@ -8,21 +8,21 @@
 #include <vector>
 
 const double PI = 3.141592653589793;
-const float SCALE = 0.000001f;
+const float SCALE = 0.000001f; // 1 pixel = 1,000,000 meters (adjust as needed)
 float DAYS_PER_SECOND = 10.0f;
 bool paused = false;
-sf::Vector2f viewOffset(0, 0); // Offset for dragging the view
-sf::Vector2f lastMousePos;     // Last mouse position for dragging
-bool dragging = false;          // Whether the user is dragging the view
+sf::Vector2f viewOffset(0, 0);
+sf::Vector2f lastMousePos;
+bool dragging = false;
 
-// Orbital parameters
-const float EARTH_ORBIT_RADIUS = 149597870.7f;
+// Orbital parameters (in kilometers, converted to meters in calculations)
+const float EARTH_ORBIT_RADIUS = 149597870.7f; // in km
 const float MERCURY_ORBIT_RADIUS = 57909050.0f;
 const float VENUS_ORBIT_RADIUS = 108208000.0f;
 const float GOD_OF_CHAOS_ORBIT_RADIUS = 200000000.0f;
 const float YR4_ORBIT_RADIUS = 180000000.0f;
 
-// Orbital periods
+// Orbital periods (in days)
 const float EARTH_ORBITAL_PERIOD = 365.25f;
 const float MERCURY_ORBITAL_PERIOD = 87.97f;
 const float VENUS_ORBITAL_PERIOD = 224.7f;
@@ -31,8 +31,8 @@ const float YR4_ORBITAL_PERIOD = 450.0f;
 
 void calculatePosition(float days, float radius, float period, float& x, float& y) {
     float angle = 2 * PI * (days / period);
-    x = radius * cos(angle) * SCALE + 400 + viewOffset.x; // Apply view offset
-    y = radius * sin(angle) * SCALE + 400 + viewOffset.y; // Apply view offset
+    x = radius * cos(angle) * SCALE + 400 + viewOffset.x;
+    y = radius * sin(angle) * SCALE + 400 + viewOffset.y;
 }
 
 std::string getDateTimeString(int year, int month, int day) {
@@ -51,6 +51,13 @@ std::string getDateTimeString(int year, int month, int day) {
     return oss.str();
 }
 
+// Calculate distance in meters between two objects
+float calculateDistance(float x1, float y1, float x2, float y2, float scale) {
+    float dx = (x1 - x2) / scale; // Convert back to kilometers
+    float dy = (y1 - y2) / scale;
+    return sqrt(dx * dx + dy * dy) * 1000; // Convert to meters
+}
+
 int main() {
     int startYear, startMonth, startDay;
     std::cout << "Enter start date (YYYY MM DD): ";
@@ -58,17 +65,15 @@ int main() {
 
     sf::RenderWindow window(sf::VideoMode(800, 800), "Orbital Simulation");
 
-    // Sun
     sf::CircleShape sun(20);
     sun.setFillColor(sf::Color::Yellow);
     sun.setOrigin(20, 20);
-    sun.setPosition(400 + viewOffset.x, 400 + viewOffset.y); // Apply view offset
+    sun.setPosition(400 + viewOffset.x, 400 + viewOffset.y);
 
-    // Planets and asteroids
     sf::CircleShape earth(8), mercury(5), venus(6), godOfChaos(4), yr4(4);
     earth.setFillColor(sf::Color::Blue);
-    mercury.setFillColor(sf::Color(169, 169, 169)); // Gray
-    venus.setFillColor(sf::Color(255, 215, 0));    // Gold
+    mercury.setFillColor(sf::Color(169, 169, 169));
+    venus.setFillColor(sf::Color(255, 215, 0));
     godOfChaos.setFillColor(sf::Color::Red);
     yr4.setFillColor(sf::Color::Cyan);
 
@@ -84,6 +89,14 @@ int main() {
         return -1;
     }
 
+    sf::Text GOD_OF_CHAOSText("God Of Chaos Asteroid", font, 20);
+    GOD_OF_CHAOSText.setFillColor(sf::Color::Red);
+    GOD_OF_CHAOSText.setPosition(10, 60);
+
+    sf::Text YR4Text("YR4 Asteroid", font, 20);
+    YR4Text.setFillColor(sf::Color::Cyan);
+    YR4Text.setPosition(10, 80);
+
     sf::Text dateText("", font, 20);
     dateText.setFillColor(sf::Color::White);
     dateText.setPosition(10, 10);
@@ -91,6 +104,11 @@ int main() {
     sf::Text speedText("Speed: " + std::to_string(DAYS_PER_SECOND) + " days/sec", font, 20);
     speedText.setFillColor(sf::Color::White);
     speedText.setPosition(10, 40);
+
+    // Popup text for close approaches
+    sf::Text popupText("", font, 20);
+    popupText.setFillColor(sf::Color::Red);
+    popupText.setPosition(10, 70);
 
     std::vector<std::vector<sf::Vector2f>> trails(5);
 
@@ -124,7 +142,7 @@ int main() {
             }
             if (event.type == sf::Event::MouseMoved && dragging) {
                 sf::Vector2f newMousePos(event.mouseMove.x, event.mouseMove.y);
-                viewOffset += newMousePos - lastMousePos; // Update view offset
+                viewOffset += newMousePos - lastMousePos;
                 lastMousePos = newMousePos;
             }
         }
@@ -137,25 +155,40 @@ int main() {
         dateText.setString(getDateTimeString(currentYear, currentMonth, currentDay));
         speedText.setString("Speed: " + std::to_string(DAYS_PER_SECOND) + " days/sec");
 
-        // Update positions of planets and asteroids
-        float x, y;
-        calculatePosition(days, EARTH_ORBIT_RADIUS, EARTH_ORBITAL_PERIOD, x, y);
-        earth.setPosition(x, y);
-        calculatePosition(days, MERCURY_ORBIT_RADIUS, MERCURY_ORBITAL_PERIOD, x, y);
-        mercury.setPosition(x, y);
-        calculatePosition(days, VENUS_ORBIT_RADIUS, VENUS_ORBITAL_PERIOD, x, y);
-        venus.setPosition(x, y);
-        calculatePosition(days, GOD_OF_CHAOS_ORBIT_RADIUS, GOD_OF_CHAOS_ORBITAL_PERIOD, x, y);
-        godOfChaos.setPosition(x, y);
-        calculatePosition(days, YR4_ORBIT_RADIUS, YR4_ORBITAL_PERIOD, x, y);
-        yr4.setPosition(x, y);
+        float earthX, earthY, godX, godY, yr4X, yr4Y;
+        calculatePosition(days, EARTH_ORBIT_RADIUS, EARTH_ORBITAL_PERIOD, earthX, earthY);
+        earth.setPosition(earthX, earthY);
+        calculatePosition(days, MERCURY_ORBIT_RADIUS, MERCURY_ORBITAL_PERIOD, earthX, earthY);
+        mercury.setPosition(earthX, earthY);
+        calculatePosition(days, VENUS_ORBIT_RADIUS, VENUS_ORBITAL_PERIOD, earthX, earthY);
+        venus.setPosition(earthX, earthY);
+        calculatePosition(days, GOD_OF_CHAOS_ORBIT_RADIUS, GOD_OF_CHAOS_ORBITAL_PERIOD, godX, godY);
+        godOfChaos.setPosition(godX, godY);
+        calculatePosition(days, YR4_ORBIT_RADIUS, YR4_ORBITAL_PERIOD, yr4X, yr4Y);
+        yr4.setPosition(yr4X, yr4Y);
 
-        // Update sun position with view offset
         sun.setPosition(400 + viewOffset.x, 400 + viewOffset.y);
 
+        // Calculate distances to Earth
+        float distToGod = calculateDistance(earthX, earthY, godX, godY, SCALE);
+        float distToYr4 = calculateDistance(earthX, earthY, yr4X, yr4Y, SCALE);
+
+        // Check if within 3,393,500,000 meters and set popup text
+        std::string popupMessage = "";
+        if (distToGod < 3393500000) {
+            popupMessage += "GOD_OF_CHAOS near Earth: " + getDateTimeString(currentYear, currentMonth, currentDay) + "\n";
+        }
+        if (distToYr4 < 3393500000) {
+            popupMessage += "YR4 near Earth: " + getDateTimeString(currentYear, currentMonth, currentDay);
+        }
+        popupText.setString(popupMessage);
+
         window.clear(sf::Color::Black);
+        window.draw(GOD_OF_CHAOSText);
+        window.draw(YR4Text);
         window.draw(dateText);
         window.draw(speedText);
+        window.draw(popupText); // Draw the popup text
         window.draw(sun);
         window.draw(earth);
         window.draw(mercury);
