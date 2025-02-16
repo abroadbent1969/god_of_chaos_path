@@ -173,12 +173,12 @@ int main() {
         float distToGod = calculateDistance(earthX, earthY, godX, godY, SCALE);
         float distToYr4 = calculateDistance(earthX, earthY, yr4X, yr4Y, SCALE);
 
-        // Check if within 3,393,500,000 meters and set popup text
+        // Check if within 4,393,500,000 meters and set popup text
         std::string popupMessage = "";
-        if (distToGod < 3393500000) {
+        if (distToGod < 44393500000) {
             popupMessage += "GOD_OF_CHAOS near Earth: " + getDateTimeString(currentYear, currentMonth, currentDay) + "\n";
         }
-        if (distToYr4 < 3393500000) {
+        if (distToYr4 < 4393500000) {
             popupMessage += "YR4 near Earth: " + getDateTimeString(currentYear, currentMonth, currentDay);
         }
         popupText.setString(popupMessage);
