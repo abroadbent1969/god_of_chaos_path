@@ -1,27 +1,86 @@
 ﻿  Source.cpp
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(33,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(135,87): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(135,87): warning C4244:         with
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(135,87): warning C4244:         [
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(135,87): warning C4244:             T=float
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(135,87): warning C4244:         ]
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(135,66): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(135,66): warning C4244:         with
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(135,66): warning C4244:         [
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(135,66): warning C4244:             T=float
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(135,66): warning C4244:         ]
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(144,76): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(144,76): warning C4244:         with
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(144,76): warning C4244:         [
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(144,76): warning C4244:             T=float
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(144,76): warning C4244:         ]
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(144,57): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(144,57): warning C4244:         with
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(144,57): warning C4244:         [
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(144,57): warning C4244:             T=float
-C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(144,57): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(182,87): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(182,87): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(182,87): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(182,87): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(182,87): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(182,66): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(182,66): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(182,66): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(182,66): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(182,66): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(191,76): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(191,76): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(191,76): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(191,76): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(191,76): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(191,57): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(191,57): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(191,57): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(191,57): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(191,57): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(208,35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(208,27): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(210,39): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(210,29): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(212,35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(212,27): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(214,38): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(214,32): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(216,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(216,25): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(222,61): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(222,61): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(222,61): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(222,61): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(222,61): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(222,53): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(222,53): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(222,53): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(222,53): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(222,53): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(223,63): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(223,63): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(223,63): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(223,63): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(223,63): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(223,53): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(223,53): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(223,53): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(223,53): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(223,53): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(224,61): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(224,61): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(224,61): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(224,61): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(224,61): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(224,53): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(224,53): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(224,53): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(224,53): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(224,53): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(225,59): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(225,59): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(225,59): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(225,59): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(225,59): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(225,53): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(225,53): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(225,53): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(225,53): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(225,53): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(226,59): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(226,59): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(226,59): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(226,59): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(226,59): warning C4244:         ]
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(226,53): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(226,53): warning C4244:         with
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(226,53): warning C4244:         [
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(226,53): warning C4244:             T=float
+C:\Users\abroadbent\source\repos\god_of_chaos_path\god_of_chaos_path\Source.cpp(226,53): warning C4244:         ]
   Generating code
-  1 of 214 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
+  1 of 257 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
