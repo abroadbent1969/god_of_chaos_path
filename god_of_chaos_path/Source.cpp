@@ -10,7 +10,7 @@
 // Constants
 const double PI = 3.141592653589793;
 const float SCALE = 0.0000005f; // 1 pixel = 2,000,000 meters
-float DAYS_PER_SECOND = 10.0f;
+float DAYS_PER_SECOND = 5.0f; // Speed of Simulation
 bool paused = false;
 sf::Vector2f viewOffset(0, 0);
 sf::Vector2f lastMousePos;
@@ -110,7 +110,7 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(800, 800), "Orbital Simulation");
 
     // Create celestial bodies
-    sf::CircleShape sun(20);
+    sf::CircleShape sun(15);
     sun.setFillColor(sf::Color::Yellow);
     sun.setOrigin(20, 20);
 
