@@ -1,100 +1,131 @@
-﻿#include <SFML/Graphics.hpp>
+﻿#include <GL/glut.h>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
-#include <chrono>
-#include <ctime>
 #include <sstream>
 #include <vector>
+#include <chrono>
 
-// Constants
-const double PI = 3.141592653589793;
-const float SCALE = 0.0000005f; // 1 pixel = 2,000,000 meters
-float DAYS_PER_SECOND = 5.0f; // Speed of Simulation
+constexpr float PI = 3.141592653589793f;
+constexpr float SCALE = 0.0000005f; // Adjusted for visibility
+float DAYS_PER_SECOND = 200.0f;
 bool paused = false;
-sf::Vector2f viewOffset(0, 0);
-sf::Vector2f lastMousePos;
-bool dragging = false;
+float viewOffsetX = 0.0f, viewOffsetY = 0.0f;
+float lastMouseX = 0.0f, lastMouseY = 0.0f;
+bool draggingLeft = false;
+float zoomLevel = 1.0f;
 
-// Orbital parameters (in kilometers)
-const float EARTH_SEMI_MAJOR_AXIS = 149597870.7f; // 1 AU
-const float MERCURY_SEMI_MAJOR_AXIS = 57909050.0f;
-const float VENUS_SEMI_MAJOR_AXIS = 108208000.0f;
-const float GOD_OF_CHAOS_SEMI_MAJOR_AXIS = 200000000.0f; // Example value
-const float YR4_SEMI_MAJOR_AXIS = 180000000.0f; // Example value
+// Orbital parameters (in kilometers, from NASA JPL unless noted)
+constexpr float AU_TO_KM = 149597870.7f; // 1 AU in kilometers
 
-// Orbital eccentricities
-const float EARTH_ECCENTRICITY = 0.0167f;
-const float MERCURY_ECCENTRICITY = 0.2056f;
-const float VENUS_ECCENTRICITY = 0.0068f;
-const float GOD_OF_CHAOS_ECCENTRICITY = 0.1f; // Example value
-const float YR4_ECCENTRICITY = 0.15f; // Example value
+// Mercury
+constexpr float MERCURY_SEMI_MAJOR_AXIS = 57909050.0f; // 0.387098 AU
+constexpr float MERCURY_ECCENTRICITY = 0.205635f;
+constexpr float MERCURY_INCLINATION = 7.005f; // degrees
+constexpr float MERCURY_LAN = 48.331f; // Longitude of ascending node (degrees)
+constexpr float MERCURY_AOP = 29.124f; // Argument of periapsis (degrees)
+constexpr float MERCURY_ORBITAL_PERIOD = 87.9691f; // days
 
-// Orbital inclinations (in degrees)
-const float EARTH_INCLINATION = 0.0f;
-const float MERCURY_INCLINATION = 7.0f;
-const float VENUS_INCLINATION = 3.4f;
-const float GOD_OF_CHAOS_INCLINATION = 5.0f; // Example value
-const float YR4_INCLINATION = 10.0f; // Example value
+// Venus
+constexpr float VENUS_SEMI_MAJOR_AXIS = 108208000.0f; // 0.723332 AU
+constexpr float VENUS_ECCENTRICITY = 0.006772f;
+constexpr float VENUS_INCLINATION = 3.39458f; // degrees
+constexpr float VENUS_LAN = 76.680f; // degrees
+constexpr float VENUS_AOP = 54.884f; // degrees
+constexpr float VENUS_ORBITAL_PERIOD = 224.701f; // days
 
-// Orbital periods (in days)
-const float EARTH_ORBITAL_PERIOD = 365.25f;
-const float MERCURY_ORBITAL_PERIOD = 87.97f;
-const float VENUS_ORBITAL_PERIOD = 224.7f;
-const float GOD_OF_CHAOS_ORBITAL_PERIOD = 570.0f; // Adjusted for realism
-const float YR4_ORBITAL_PERIOD = 480.0f; // Adjusted for realism
+// Earth
+constexpr float EARTH_SEMI_MAJOR_AXIS = 149598023.0f; // 1.000001 AU
+constexpr float EARTH_ECCENTRICITY = 0.0167086f;
+constexpr float EARTH_INCLINATION = 0.0f; // Reference plane
+constexpr float EARTH_LAN = 0.0f; // Reference
+constexpr float EARTH_AOP = 114.20783f; // degrees
+constexpr float EARTH_ORBITAL_PERIOD = 365.256363f; // days
 
-// Function to convert degrees to radians
-double degreesToRadians(double degrees) {
-    return degrees * PI / 180.0;
+// 99942 Apophis (GOD_OF_CHAOS) - Real asteroid data
+constexpr float APOPHIS_SEMI_MAJOR_AXIS = 137996000.0f; // 0.922 AU
+constexpr float APOPHIS_ECCENTRICITY = 0.1914f;
+constexpr float APOPHIS_INCLINATION = 3.339f; // degrees
+constexpr float APOPHIS_LAN = 204.43f; // degrees
+constexpr float APOPHIS_AOP = 126.39f; // degrees
+constexpr float APOPHIS_ORBITAL_PERIOD = 323.5f; // days
+
+// YR4 (Fictional asteroid, realistic values)
+constexpr float YR4_SEMI_MAJOR_AXIS = 180000000.0f; // ~1.2 AU
+constexpr float YR4_ECCENTRICITY = 0.15f;
+constexpr float YR4_INCLINATION = 10.0f; // degrees
+constexpr float YR4_LAN = 150.0f; // degrees
+constexpr float YR4_AOP = 90.0f; // degrees
+constexpr float YR4_ORBITAL_PERIOD = 480.0f; // days
+
+// Alert timing variables
+float godAlertTimer = 0.0f;
+float yr4AlertTimer = 0.0f;
+const float DISPLAY_DURATION = 10.0f;
+
+float degreesToRadians(float degrees) {
+    return degrees * PI / 180.0f;
 }
 
-// Function to calculate position in elliptical orbit
-void calculateEllipticalPosition(double days, double semiMajorAxis, double eccentricity, double inclination, double orbitalPeriod, double& x, double& y) {
+void calculateEllipticalPosition(float days, float semiMajorAxis, float eccentricity, float inclination,
+    float lan, float aop, float orbitalPeriod, float& x, float& y) {
     // Mean anomaly
-    double M = 2 * PI * (days / orbitalPeriod);
+    float M = 2 * PI * (days / orbitalPeriod);
 
-    // Solve Kepler's Equation for Eccentric Anomaly (E) using Newton-Raphson method
-    double E = M; // Initial guess: E ≈ M
-    for (int i = 0; i < 5; ++i) {
-        E = E - (E - eccentricity * sin(E) - M) / (1 - eccentricity * cos(E));
+    // Eccentric anomaly (Newton's method)
+    float E = M;
+    for (int i = 0; i < 10; ++i) { // Increased iterations for precision
+        E -= (E - eccentricity * std::sin(E) - M) / (1 - eccentricity * std::cos(E));
     }
 
     // True anomaly
-    double v = 2 * atan2(sqrt(1 + eccentricity) * sin(E / 2), sqrt(1 - eccentricity) * cos(E / 2));
+    float v = 2 * std::atan2(std::sqrt(1 + eccentricity) * std::sin(E / 2),
+        std::sqrt(1 - eccentricity) * std::cos(E / 2));
 
-    // Distance from the focus (Sun) to the asteroid
-    double r = semiMajorAxis * (1 - eccentricity * cos(E));
+    // Distance from focus
+    float r = semiMajorAxis * (1 - eccentricity * std::cos(E));
 
-    // Convert inclination to radians
-    double incl = degreesToRadians(inclination);
+    // Convert to heliocentric ecliptic coordinates
+    float omega = degreesToRadians(aop);  // Argument of periapsis
+    float Omega = degreesToRadians(lan);  // Longitude of ascending node
+    float i = degreesToRadians(inclination);
 
-    // Position in the orbital plane
-    double xOrbital = r * cos(v);
-    double yOrbital = r * sin(v);
+    float xEcliptic = r * (std::cos(Omega) * std::cos(v + omega) -
+        std::sin(Omega) * std::sin(v + omega) * std::cos(i));
+    float yEcliptic = r * (std::sin(Omega) * std::cos(v + omega) +
+        std::cos(Omega) * std::sin(v + omega) * std::cos(i));
 
-    // Rotate position by inclination to get position in the ecliptic plane
-    x = xOrbital * SCALE + 400 + viewOffset.x;
-    y = yOrbital * cos(incl) * SCALE + 400 + viewOffset.y;
+    // Apply scale and center
+    x = xEcliptic * SCALE + 400 + viewOffsetX;
+    y = yEcliptic * SCALE + 400 + viewOffsetY;
 }
 
-// Function to calculate distance between two points in kilometers
-double calculateDistance(double x1, double y1, double x2, double y2) {
-    double dx = (x1 - x2) / SCALE; // Convert back to kilometers
-    double dy = (y1 - y2) / SCALE;
-    return sqrt(dx * dx + dy * dy); // Distance in kilometers
+float calculateDistance(float x1, float y1, float x2, float y2) {
+    float dx = (x1 - x2) / SCALE;
+    float dy = (y1 - y2) / SCALE;
+    return std::sqrt(dx * dx + dy * dy);
 }
 
-// Function to get date string
-std::string getDateTimeString(int year, int month, int day) {
-    while (day > 30) {  // Assuming each month has 30 days for simplicity
-        day -= 30;
-        month++;
-    }
-    while (month > 12) {
-        month -= 12;
+std::string getDateTimeString(float daysSinceStart, int startYear, int startMonth, int startDay) {
+    // More accurate date calculation
+    int totalDays = static_cast<int>(daysSinceStart) + startDay;
+    int year = startYear;
+    int month = startMonth;
+    int day = totalDays;
+
+    while (day > 365) { // Simplified, ignoring leap years for now
+        day -= 365;
         year++;
     }
+    while (day > 30) {
+        day -= 30;
+        month++;
+        if (month > 12) {
+            month = 1;
+            year++;
+        }
+    }
+
     std::ostringstream oss;
     oss << std::setfill('0') << std::setw(4) << year << "-"
         << std::setw(2) << month << "-"
@@ -102,173 +133,212 @@ std::string getDateTimeString(int year, int month, int day) {
     return oss.str();
 }
 
-int main() {
-    int startYear, startMonth, startDay;
+// Global state
+int startYear, startMonth, startDay;
+float days = 0;
+std::chrono::steady_clock::time_point lastTime = std::chrono::steady_clock::now();
+struct TrailPoint { float x, y; };
+std::vector<std::vector<TrailPoint>> trails(5);
+constexpr int TRAIL_LENGTH = 2000;
+std::string godAlertText, yr4AlertText;
+
+void setGodAlert(const std::string& text) {
+    godAlertText = text;
+    godAlertTimer = DISPLAY_DURATION;
+}
+
+void setYr4Alert(const std::string& text) {
+    yr4AlertText = text;
+    yr4AlertTimer = DISPLAY_DURATION;
+}
+
+void drawCircle(float x, float y, float radius, float r, float g, float b) {
+    glColor3f(r, g, b);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(x, y);
+    for (int i = 0; i <= 360; i += 10) {
+        float angle = i * PI / 180.0f;
+        glVertex2f(x + radius * std::cos(angle), y + radius * std::sin(angle));
+    }
+    glEnd();
+}
+
+void drawText(float x, float y, const char* text, float r, float g, float b) {
+    glColor3f(r, g, b);
+    glRasterPos2f(x, y);
+    while (*text) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *text++);
+    }
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    auto now = std::chrono::steady_clock::now();
+    float deltaTime = std::chrono::duration<float>(now - lastTime).count();
+
+    if (!paused) {
+        days += DAYS_PER_SECOND * deltaTime;
+    }
+
+    if (godAlertTimer > 0) {
+        godAlertTimer -= deltaTime;
+        if (godAlertTimer <= 0) godAlertText.clear();
+    }
+    if (yr4AlertTimer > 0) {
+        yr4AlertTimer -= deltaTime;
+        if (yr4AlertTimer <= 0) yr4AlertText.clear();
+    }
+
+    lastTime = now;
+
+    std::string currentDate = "Current Date: " + getDateTimeString(days, startYear, startMonth, startDay);
+
+    float earthX, earthY, mercuryX, mercuryY, venusX, venusY, godX, godY, yr4X, yr4Y;
+    calculateEllipticalPosition(days, EARTH_SEMI_MAJOR_AXIS, EARTH_ECCENTRICITY, EARTH_INCLINATION,
+        EARTH_LAN, EARTH_AOP, EARTH_ORBITAL_PERIOD, earthX, earthY);
+    calculateEllipticalPosition(days, MERCURY_SEMI_MAJOR_AXIS, MERCURY_ECCENTRICITY, MERCURY_INCLINATION,
+        MERCURY_LAN, MERCURY_AOP, MERCURY_ORBITAL_PERIOD, mercuryX, mercuryY);
+    calculateEllipticalPosition(days, VENUS_SEMI_MAJOR_AXIS, VENUS_ECCENTRICITY, VENUS_INCLINATION,
+        VENUS_LAN, VENUS_AOP, VENUS_ORBITAL_PERIOD, venusX, venusY);
+    calculateEllipticalPosition(days, APOPHIS_SEMI_MAJOR_AXIS, APOPHIS_ECCENTRICITY, APOPHIS_INCLINATION,
+        APOPHIS_LAN, APOPHIS_AOP, APOPHIS_ORBITAL_PERIOD, godX, godY);
+    calculateEllipticalPosition(days, YR4_SEMI_MAJOR_AXIS, YR4_ECCENTRICITY, YR4_INCLINATION,
+        YR4_LAN, YR4_AOP, YR4_ORBITAL_PERIOD, yr4X, yr4Y);
+
+    drawCircle(400 + viewOffsetX, 400 + viewOffsetY, 15 * zoomLevel, 1.0f, 1.0f, 0.0f); // Sun
+    drawCircle(earthX, earthY, 8 * zoomLevel, 0.0f, 0.0f, 1.0f);
+    drawCircle(mercuryX, mercuryY, 5 * zoomLevel, 0.66f, 0.66f, 0.66f);
+    drawCircle(venusX, venusY, 6 * zoomLevel, 1.0f, 0.84f, 0.0f);
+    drawCircle(godX, godY, 4 * zoomLevel, 1.0f, 0.0f, 0.0f);
+    drawCircle(yr4X, yr4Y, 4 * zoomLevel, 0.0f, 1.0f, 1.0f);
+
+    trails[0].push_back({ earthX, earthY });
+    trails[1].push_back({ mercuryX, mercuryY });
+    trails[2].push_back({ venusX, venusY });
+    trails[3].push_back({ godX, godY });
+    trails[4].push_back({ yr4X, yr4Y });
+
+    for (auto& trail : trails) {
+        if (trail.size() > TRAIL_LENGTH) trail.erase(trail.begin());
+    }
+
+    glBegin(GL_LINE_STRIP);
+    glColor3f(0.0f, 0.0f, 1.0f);
+    for (const auto& point : trails[0]) glVertex2f(point.x, point.y);
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+    glColor3f(0.66f, 0.66f, 0.66f);
+    for (const auto& point : trails[1]) glVertex2f(point.x, point.y);
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+    glColor3f(1.0f, 0.84f, 0.0f);
+    for (const auto& point : trails[2]) glVertex2f(point.x, point.y);
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    for (const auto& point : trails[3]) glVertex2f(point.x, point.y);
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+    glColor3f(0.0f, 1.0f, 1.0f);
+    for (const auto& point : trails[4]) glVertex2f(point.x, point.y);
+    glEnd();
+
+    float distToGod = calculateDistance(earthX, earthY, godX, godY);
+    float distToYr4 = calculateDistance(earthX, earthY, yr4X, yr4Y);
+    if (distToGod < 27479893.535f && godAlertTimer <= 0) {
+        setGodAlert("Proximity Alert - APOPHIS: " + getDateTimeString(days, startYear, startMonth, startDay));
+    }
+    if (distToYr4 < 27479893.535f && yr4AlertTimer <= 0) {
+        setYr4Alert("Proximity Alert - YR4: " + getDateTimeString(days, startYear, startMonth, startDay));
+    }
+
+    drawText(10, 780, currentDate.c_str(), 1.0f, 1.0f, 1.0f);
+    if (!godAlertText.empty() && godAlertTimer > 0) {
+        drawText(10, 120, godAlertText.c_str(), 1.0f, 0.0f, 0.0f);
+    }
+    if (!yr4AlertText.empty() && yr4AlertTimer > 0) {
+        drawText(10, 100, yr4AlertText.c_str(), 0.0f, 1.0f, 1.0f);
+    }
+
+    glutSwapBuffers();
+}
+
+void reshape(int w, int h) {
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    float baseWidth = 800.0f;
+    float baseHeight = 800.0f;
+    float zoomWidth = baseWidth / zoomLevel;
+    float zoomHeight = baseHeight / zoomLevel;
+    float centerX = 400 + viewOffsetX;
+    float centerY = 400 + viewOffsetY;
+    gluOrtho2D(centerX - zoomWidth / 2, centerX + zoomWidth / 2, centerY - zoomHeight / 2, centerY + zoomHeight / 2);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+void keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+    case '+': DAYS_PER_SECOND *= 1.1f; break;
+    case '-': DAYS_PER_SECOND /= 1.1f; break;
+    case ' ': paused = !paused; break;
+    case 27: exit(0);
+    }
+}
+
+void mouse(int button, int state, int x, int y) {
+    if (button == GLUT_LEFT_BUTTON) {
+        if (state == GLUT_DOWN) {
+            draggingLeft = true;
+            lastMouseX = static_cast<float>(x);
+            lastMouseY = static_cast<float>(y);
+        }
+        else draggingLeft = false;
+    }
+    else if (button == 3 && state == GLUT_UP) {
+        zoomLevel = std::min(10.0f, zoomLevel * 1.1f);
+        reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+    }
+    else if (button == 4 && state == GLUT_UP) {
+        zoomLevel = std::max(0.1f, zoomLevel / 1.1f);
+        reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+    }
+}
+
+void motion(int x, int y) {
+    if (draggingLeft) {
+        viewOffsetX += (static_cast<float>(x) - lastMouseX) / zoomLevel;
+        viewOffsetY -= (static_cast<float>(y) - lastMouseY) / zoomLevel;
+        lastMouseX = static_cast<float>(x);
+        lastMouseY = static_cast<float>(y);
+    }
+}
+
+void idle() {
+    glutPostRedisplay();
+}
+
+int main(int argc, char** argv) {
     std::cout << "Enter start date (YYYY MM DD): ";
     std::cin >> startYear >> startMonth >> startDay;
 
-    sf::RenderWindow window(sf::VideoMode(800, 800), "Orbital Simulation");
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(800, 800);
+    glutCreateWindow("Orbital Simulation");
 
-    // Create celestial bodies
-    sf::CircleShape sun(15);
-    sun.setFillColor(sf::Color::Yellow);
-    sun.setOrigin(20, 20);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_LINE_SMOOTH);
 
-    sf::CircleShape earth(8), mercury(5), venus(6), godOfChaos(4), yr4(4);
-    earth.setFillColor(sf::Color::Blue);
-    mercury.setFillColor(sf::Color(169, 169, 169));
-    venus.setFillColor(sf::Color(255, 215, 0));
-    godOfChaos.setFillColor(sf::Color::Red);
-    yr4.setFillColor(sf::Color::Cyan);
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutKeyboardFunc(keyboard);
+    glutMouseFunc(mouse);
+    glutMotionFunc(motion);
+    glutIdleFunc(idle);
 
-    earth.setOrigin(8, 8);
-    mercury.setOrigin(5, 5);
-    venus.setOrigin(6, 6);
-    godOfChaos.setOrigin(4, 4);
-    yr4.setOrigin(4, 4);
-
-    // Load font
-    sf::Font font;
-    if (!font.loadFromFile("C:/Users/abroadbent/source/repos/god_of_chaos_path/font/arial.ttf")) {
-        std::cerr << "Error loading font!" << std::endl;
-        return -1;
-    }
-
-    // Create text objects
-    sf::Text GOD_OF_CHAOSText("God Of Chaos Asteroid", font, 20);
-    GOD_OF_CHAOSText.setFillColor(sf::Color::Red);
-    GOD_OF_CHAOSText.setPosition(10, 60);
-
-    sf::Text YR4Text("YR4 Asteroid", font, 20);
-    YR4Text.setFillColor(sf::Color::Cyan);
-    YR4Text.setPosition(10, 80);
-
-    sf::Text dateText("", font, 20);
-    dateText.setFillColor(sf::Color::White);
-    dateText.setPosition(10, 10);
-
-    sf::Text speedText("Speed: " + std::to_string(DAYS_PER_SECOND) + " days/sec", font, 20);
-    speedText.setFillColor(sf::Color::White);
-    speedText.setPosition(10, 40);
-
-    sf::Text popupText("", font, 20);
-    popupText.setFillColor(sf::Color::White);
-    popupText.setPosition(10, 100);
-
-    // Trails for each object
-    std::vector<std::vector<sf::Vertex>> trails(5);
-    const int TRAIL_LENGTH = 1000; // Number of points in the trail
-
-    float days = 0;
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                window.close();
-            if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::Add) {
-                    DAYS_PER_SECOND *= 1.1f;
-                }
-                else if (event.key.code == sf::Keyboard::Subtract) {
-                    DAYS_PER_SECOND /= 1.1f;
-                }
-                else if (event.key.code == sf::Keyboard::Space) {
-                    paused = !paused;
-                }
-            }
-            if (event.type == sf::Event::MouseButtonPressed) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    dragging = true;
-                    lastMousePos = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
-                }
-            }
-            if (event.type == sf::Event::MouseButtonReleased) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    dragging = false;
-                }
-            }
-            if (event.type == sf::Event::MouseMoved && dragging) {
-                sf::Vector2f newMousePos(event.mouseMove.x, event.mouseMove.y);
-                viewOffset += newMousePos - lastMousePos;
-                lastMousePos = newMousePos;
-            }
-        }
-
-        if (!paused) {
-            days += DAYS_PER_SECOND * 0.01f;
-        }
-
-        int currentYear = startYear, currentMonth = startMonth, currentDay = startDay + static_cast<int>(days);
-        dateText.setString(getDateTimeString(currentYear, currentMonth, currentDay));
-        speedText.setString("Speed: " + std::to_string(DAYS_PER_SECOND) + " days/sec");
-
-        // Calculate positions
-        double earthX, earthY, mercuryX, mercuryY, venusX, venusY, godX, godY, yr4X, yr4Y;
-        calculateEllipticalPosition(days, EARTH_SEMI_MAJOR_AXIS, EARTH_ECCENTRICITY, EARTH_INCLINATION, EARTH_ORBITAL_PERIOD, earthX, earthY);
-        earth.setPosition(earthX, earthY);
-        calculateEllipticalPosition(days, MERCURY_SEMI_MAJOR_AXIS, MERCURY_ECCENTRICITY, MERCURY_INCLINATION, MERCURY_ORBITAL_PERIOD, mercuryX, mercuryY);
-        mercury.setPosition(mercuryX, mercuryY);
-        calculateEllipticalPosition(days, VENUS_SEMI_MAJOR_AXIS, VENUS_ECCENTRICITY, VENUS_INCLINATION, VENUS_ORBITAL_PERIOD, venusX, venusY);
-        venus.setPosition(venusX, venusY);
-        calculateEllipticalPosition(days, GOD_OF_CHAOS_SEMI_MAJOR_AXIS, GOD_OF_CHAOS_ECCENTRICITY, GOD_OF_CHAOS_INCLINATION, GOD_OF_CHAOS_ORBITAL_PERIOD, godX, godY);
-        godOfChaos.setPosition(godX, godY);
-        calculateEllipticalPosition(days, YR4_SEMI_MAJOR_AXIS, YR4_ECCENTRICITY, YR4_INCLINATION, YR4_ORBITAL_PERIOD, yr4X, yr4Y);
-        yr4.setPosition(yr4X, yr4Y);
-
-        // Update Sun's position with view offset
-        sun.setPosition(400 + viewOffset.x, 400 + viewOffset.y);
-
-        // Update trails
-        trails[0].push_back(sf::Vertex(sf::Vector2f(earthX, earthY), sf::Color::Blue));
-        trails[1].push_back(sf::Vertex(sf::Vector2f(mercuryX, mercuryY), sf::Color(169, 169, 169)));
-        trails[2].push_back(sf::Vertex(sf::Vector2f(venusX, venusY), sf::Color(255, 215, 0)));
-        trails[3].push_back(sf::Vertex(sf::Vector2f(godX, godY), sf::Color::Red));
-        trails[4].push_back(sf::Vertex(sf::Vector2f(yr4X, yr4Y), sf::Color::Cyan));
-
-        // Limit trail length
-        for (auto& trail : trails) {
-            if (trail.size() > TRAIL_LENGTH) {
-                trail.erase(trail.begin());
-            }
-        }
-
-        // Calculate distances to Earth
-        double distToGod = calculateDistance(earthX, earthY, godX, godY);
-        double distToYr4 = calculateDistance(earthX, earthY, yr4X, yr4Y);
-
-        // Check for close approaches
-        std::string popupMessage = "";
-        //if (distToGod < 7479893.535) { // 0.05 AU in kilometers
-        if (distToGod < 27479893.535) { // 0.05 AU in kilometers
-            popupMessage += "GOD_OF_CHAOS near Earth: " + getDateTimeString(currentYear, currentMonth, currentDay) + "\n";
-        }
-        //if (distToYr4 < 7479893.535) { // 0.05 AU in kilometers
-        if (distToYr4 < 27479893.535) { // 0.05 AU in kilometers
-            popupMessage += "YR4 near Earth: " + getDateTimeString(currentYear, currentMonth, currentDay);
-        }
-        popupText.setString(popupMessage);
-
-        // Draw everything
-        window.clear(sf::Color::Black);
-        window.draw(GOD_OF_CHAOSText);
-        window.draw(YR4Text);
-        window.draw(dateText);
-        window.draw(speedText);
-        window.draw(popupText);
-        window.draw(sun);
-        window.draw(earth);
-        window.draw(mercury);
-        window.draw(venus);
-        window.draw(godOfChaos);
-        window.draw(yr4);
-
-        // Draw trails
-        for (const auto& trail : trails) {
-            window.draw(&trail[0], trail.size(), sf::LineStrip);
-        }
-
-        window.display();
-    }
-
+    glutMainLoop();
     return 0;
 }
