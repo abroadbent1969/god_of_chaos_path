@@ -1,15 +1,19 @@
-Proximity Alert - APOPHIS: 1122-12-18
-Proximity Alert - YR4: 1133-12-27
-Proximity Alert - APOPHIS: 1137-09-09
-Proximity Alert - APOPHIS: 1153-12-27
-Proximity Alert - YR4: 1155-01-04
-Proximity Alert - APOPHIS: 1168-09-16
-Proximity Alert - YR4: 1180-01-11
-Proximity Alert - APOPHIS: 2031-12-18
-Proximity Alert - YR4: 2042-12-26
-Proximity Alert - APOPHIS: 2046-09-09
-Proximity Alert - APOPHIS: 2062-12-27
-Proximity Alert - YR4: 2064-01-04
-Proximity Alert - APOPHIS: 2077-09-16
-Proximity Alert - YR4: 2089-01-11
-Proximity Alert - APOPHIS: 2094-01-07
+Proximity Alert - APOPHIS: 2801-02-15 (Distance: 3724696.750000 km)
+Proximity Alert - APOPHIS: 1845-02-06 (Distance: 3648556.000000 km)
+Proximity Alert - YR4: 1936-06-12 (Distance: 3697819.250000 km)
+Proximity Alert - APOPHIS: 1969-10-16 (Distance: 3797675.750000 km)
+Proximity Alert - APOPHIS: 2024-10-16 (Distance: 3669222.750000 km)
+Proximity Alert - APOPHIS: 2057-02-08 (Distance: 2097934.250000 km)
+Proximity Alert - APOPHIS: 2079-10-25 (Distance: 3798853.750000 km)
+Proximity Alert - APOPHIS: 2112-02-08 (Distance: 3780604.000000 km)
+Proximity Alert - APOPHIS: 2236-10-22 (Distance: 3721257.000000 km)
+Proximity Alert - APOPHIS: 2291-10-20 (Distance: 3629249.250000 km)
+Proximity Alert - APOPHIS: 2324-02-10 (Distance: 3798892.250000 km)
+Proximity Alert - APOPHIS: 2346-10-24 (Distance: 3659808.750000 km)
+Proximity Alert - BENNU: 2062-11-22 (Distance: 3790629.000000 km)
+Proximity Alert - APOPHIS: 2065-02-05 (Distance: 3680972.000000 km)
+Proximity Alert - 1950 DA: 2096-12-27 (Distance: 3764440.250000 km)
+Proximity Alert - 2001 WN5: 2130-05-23 (Distance: 3776465.750000 km)
+Proximity Alert - YR4: 2156-06-12 (Distance: 3533627.750000 km)
+Proximity Alert - BENNU: 2178-07-17 (Distance: 3754854.000000 km)
+Proximity Alert - APOPHIS: 2189-10-15 (Distance: 3779578.500000 km)
