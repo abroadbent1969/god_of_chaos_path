@@ -5,58 +5,49 @@
 #include <sstream>
 #include <vector>
 #include <chrono>
+#include <fstream> // Added for file output
 
 constexpr float PI = 3.141592653589793f;
-constexpr float SCALE = 0.0000005f; // Adjusted for visibility
-float DAYS_PER_SECOND = 200.0f;
+constexpr float SCALE = 0.0000005f;
+float DAYS_PER_SECOND = 500.0f;
 bool paused = false;
 float viewOffsetX = 0.0f, viewOffsetY = 0.0f;
 float lastMouseX = 0.0f, lastMouseY = 0.0f;
 bool draggingLeft = false;
 float zoomLevel = 1.0f;
 
-// Orbital parameters (in kilometers, from NASA JPL unless noted)
-constexpr float AU_TO_KM = 149597870.7f; // 1 AU in kilometers
-
-// Mercury
-constexpr float MERCURY_SEMI_MAJOR_AXIS = 57909050.0f; // 0.387098 AU
+// Orbital parameters (unchanged)
+constexpr float AU_TO_KM = 149597870.7f;
+constexpr float MERCURY_SEMI_MAJOR_AXIS = 57909050.0f;
 constexpr float MERCURY_ECCENTRICITY = 0.205635f;
-constexpr float MERCURY_INCLINATION = 7.005f; // degrees
-constexpr float MERCURY_LAN = 48.331f; // Longitude of ascending node (degrees)
-constexpr float MERCURY_AOP = 29.124f; // Argument of periapsis (degrees)
-constexpr float MERCURY_ORBITAL_PERIOD = 87.9691f; // days
-
-// Venus
-constexpr float VENUS_SEMI_MAJOR_AXIS = 108208000.0f; // 0.723332 AU
+constexpr float MERCURY_INCLINATION = 7.005f;
+constexpr float MERCURY_LAN = 48.331f;
+constexpr float MERCURY_AOP = 29.124f;
+constexpr float MERCURY_ORBITAL_PERIOD = 87.9691f;
+constexpr float VENUS_SEMI_MAJOR_AXIS = 108208000.0f;
 constexpr float VENUS_ECCENTRICITY = 0.006772f;
-constexpr float VENUS_INCLINATION = 3.39458f; // degrees
-constexpr float VENUS_LAN = 76.680f; // degrees
-constexpr float VENUS_AOP = 54.884f; // degrees
-constexpr float VENUS_ORBITAL_PERIOD = 224.701f; // days
-
-// Earth
-constexpr float EARTH_SEMI_MAJOR_AXIS = 149598023.0f; // 1.000001 AU
+constexpr float VENUS_INCLINATION = 3.39458f;
+constexpr float VENUS_LAN = 76.680f;
+constexpr float VENUS_AOP = 54.884f;
+constexpr float VENUS_ORBITAL_PERIOD = 224.701f;
+constexpr float EARTH_SEMI_MAJOR_AXIS = 149598023.0f;
 constexpr float EARTH_ECCENTRICITY = 0.0167086f;
-constexpr float EARTH_INCLINATION = 0.0f; // Reference plane
-constexpr float EARTH_LAN = 0.0f; // Reference
-constexpr float EARTH_AOP = 114.20783f; // degrees
-constexpr float EARTH_ORBITAL_PERIOD = 365.256363f; // days
-
-// 99942 Apophis (GOD_OF_CHAOS) - Real asteroid data
-constexpr float APOPHIS_SEMI_MAJOR_AXIS = 137996000.0f; // 0.922 AU
+constexpr float EARTH_INCLINATION = 0.0f;
+constexpr float EARTH_LAN = 0.0f;
+constexpr float EARTH_AOP = 114.20783f;
+constexpr float EARTH_ORBITAL_PERIOD = 365.256363f;
+constexpr float APOPHIS_SEMI_MAJOR_AXIS = 137996000.0f;
 constexpr float APOPHIS_ECCENTRICITY = 0.1914f;
-constexpr float APOPHIS_INCLINATION = 3.339f; // degrees
-constexpr float APOPHIS_LAN = 204.43f; // degrees
-constexpr float APOPHIS_AOP = 126.39f; // degrees
-constexpr float APOPHIS_ORBITAL_PERIOD = 323.5f; // days
-
-// YR4 (Fictional asteroid, realistic values)
-constexpr float YR4_SEMI_MAJOR_AXIS = 180000000.0f; // ~1.2 AU
+constexpr float APOPHIS_INCLINATION = 3.339f;
+constexpr float APOPHIS_LAN = 204.43f;
+constexpr float APOPHIS_AOP = 126.39f;
+constexpr float APOPHIS_ORBITAL_PERIOD = 323.5f;
+constexpr float YR4_SEMI_MAJOR_AXIS = 180000000.0f;
 constexpr float YR4_ECCENTRICITY = 0.15f;
-constexpr float YR4_INCLINATION = 10.0f; // degrees
-constexpr float YR4_LAN = 150.0f; // degrees
-constexpr float YR4_AOP = 90.0f; // degrees
-constexpr float YR4_ORBITAL_PERIOD = 480.0f; // days
+constexpr float YR4_INCLINATION = 10.0f;
+constexpr float YR4_LAN = 150.0f;
+constexpr float YR4_AOP = 90.0f;
+constexpr float YR4_ORBITAL_PERIOD = 480.0f;
 
 // Alert timing variables
 float godAlertTimer = 0.0f;
@@ -69,33 +60,21 @@ float degreesToRadians(float degrees) {
 
 void calculateEllipticalPosition(float days, float semiMajorAxis, float eccentricity, float inclination,
     float lan, float aop, float orbitalPeriod, float& x, float& y) {
-    // Mean anomaly
     float M = 2 * PI * (days / orbitalPeriod);
-
-    // Eccentric anomaly (Newton's method)
     float E = M;
-    for (int i = 0; i < 10; ++i) { // Increased iterations for precision
+    for (int i = 0; i < 10; ++i) {
         E -= (E - eccentricity * std::sin(E) - M) / (1 - eccentricity * std::cos(E));
     }
-
-    // True anomaly
     float v = 2 * std::atan2(std::sqrt(1 + eccentricity) * std::sin(E / 2),
         std::sqrt(1 - eccentricity) * std::cos(E / 2));
-
-    // Distance from focus
     float r = semiMajorAxis * (1 - eccentricity * std::cos(E));
-
-    // Convert to heliocentric ecliptic coordinates
-    float omega = degreesToRadians(aop);  // Argument of periapsis
-    float Omega = degreesToRadians(lan);  // Longitude of ascending node
+    float omega = degreesToRadians(aop);
+    float Omega = degreesToRadians(lan);
     float i = degreesToRadians(inclination);
-
     float xEcliptic = r * (std::cos(Omega) * std::cos(v + omega) -
         std::sin(Omega) * std::sin(v + omega) * std::cos(i));
     float yEcliptic = r * (std::sin(Omega) * std::cos(v + omega) +
         std::cos(Omega) * std::sin(v + omega) * std::cos(i));
-
-    // Apply scale and center
     x = xEcliptic * SCALE + 400 + viewOffsetX;
     y = yEcliptic * SCALE + 400 + viewOffsetY;
 }
@@ -107,13 +86,11 @@ float calculateDistance(float x1, float y1, float x2, float y2) {
 }
 
 std::string getDateTimeString(float daysSinceStart, int startYear, int startMonth, int startDay) {
-    // More accurate date calculation
     int totalDays = static_cast<int>(daysSinceStart) + startDay;
     int year = startYear;
     int month = startMonth;
     int day = totalDays;
-
-    while (day > 365) { // Simplified, ignoring leap years for now
+    while (day > 365) {
         day -= 365;
         year++;
     }
@@ -125,7 +102,6 @@ std::string getDateTimeString(float daysSinceStart, int startYear, int startMont
             year++;
         }
     }
-
     std::ostringstream oss;
     oss << std::setfill('0') << std::setw(4) << year << "-"
         << std::setw(2) << month << "-"
@@ -142,14 +118,25 @@ std::vector<std::vector<TrailPoint>> trails(5);
 constexpr int TRAIL_LENGTH = 2000;
 std::string godAlertText, yr4AlertText;
 
+// File stream for proximity alerts
+std::ofstream alertFile("proximity_alerts.txt", std::ios::app);
+
 void setGodAlert(const std::string& text) {
     godAlertText = text;
     godAlertTimer = DISPLAY_DURATION;
+    if (alertFile.is_open()) {
+        alertFile << text << "\n";
+        alertFile.flush(); // Ensure immediate write
+    }
 }
 
 void setYr4Alert(const std::string& text) {
     yr4AlertText = text;
     yr4AlertTimer = DISPLAY_DURATION;
+    if (alertFile.is_open()) {
+        alertFile << text << "\n";
+        alertFile.flush(); // Ensure immediate write
+    }
 }
 
 void drawCircle(float x, float y, float radius, float r, float g, float b) {
@@ -173,14 +160,11 @@ void drawText(float x, float y, const char* text, float r, float g, float b) {
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
-
     auto now = std::chrono::steady_clock::now();
     float deltaTime = std::chrono::duration<float>(now - lastTime).count();
-
     if (!paused) {
         days += DAYS_PER_SECOND * deltaTime;
     }
-
     if (godAlertTimer > 0) {
         godAlertTimer -= deltaTime;
         if (godAlertTimer <= 0) godAlertText.clear();
@@ -189,11 +173,8 @@ void display() {
         yr4AlertTimer -= deltaTime;
         if (yr4AlertTimer <= 0) yr4AlertText.clear();
     }
-
     lastTime = now;
-
     std::string currentDate = "Current Date: " + getDateTimeString(days, startYear, startMonth, startDay);
-
     float earthX, earthY, mercuryX, mercuryY, venusX, venusY, godX, godY, yr4X, yr4Y;
     calculateEllipticalPosition(days, EARTH_SEMI_MAJOR_AXIS, EARTH_ECCENTRICITY, EARTH_INCLINATION,
         EARTH_LAN, EARTH_AOP, EARTH_ORBITAL_PERIOD, earthX, earthY);
@@ -205,24 +186,20 @@ void display() {
         APOPHIS_LAN, APOPHIS_AOP, APOPHIS_ORBITAL_PERIOD, godX, godY);
     calculateEllipticalPosition(days, YR4_SEMI_MAJOR_AXIS, YR4_ECCENTRICITY, YR4_INCLINATION,
         YR4_LAN, YR4_AOP, YR4_ORBITAL_PERIOD, yr4X, yr4Y);
-
-    drawCircle(400 + viewOffsetX, 400 + viewOffsetY, 15 * zoomLevel, 1.0f, 1.0f, 0.0f); // Sun
+    drawCircle(400 + viewOffsetX, 400 + viewOffsetY, 15 * zoomLevel, 1.0f, 1.0f, 0.0f);
     drawCircle(earthX, earthY, 8 * zoomLevel, 0.0f, 0.0f, 1.0f);
     drawCircle(mercuryX, mercuryY, 5 * zoomLevel, 0.66f, 0.66f, 0.66f);
     drawCircle(venusX, venusY, 6 * zoomLevel, 1.0f, 0.84f, 0.0f);
     drawCircle(godX, godY, 4 * zoomLevel, 1.0f, 0.0f, 0.0f);
     drawCircle(yr4X, yr4Y, 4 * zoomLevel, 0.0f, 1.0f, 1.0f);
-
     trails[0].push_back({ earthX, earthY });
     trails[1].push_back({ mercuryX, mercuryY });
     trails[2].push_back({ venusX, venusY });
     trails[3].push_back({ godX, godY });
     trails[4].push_back({ yr4X, yr4Y });
-
     for (auto& trail : trails) {
         if (trail.size() > TRAIL_LENGTH) trail.erase(trail.begin());
     }
-
     glBegin(GL_LINE_STRIP);
     glColor3f(0.0f, 0.0f, 1.0f);
     for (const auto& point : trails[0]) glVertex2f(point.x, point.y);
@@ -243,7 +220,6 @@ void display() {
     glColor3f(0.0f, 1.0f, 1.0f);
     for (const auto& point : trails[4]) glVertex2f(point.x, point.y);
     glEnd();
-
     float distToGod = calculateDistance(earthX, earthY, godX, godY);
     float distToYr4 = calculateDistance(earthX, earthY, yr4X, yr4Y);
     if (distToGod < 27479893.535f && godAlertTimer <= 0) {
@@ -252,7 +228,6 @@ void display() {
     if (distToYr4 < 27479893.535f && yr4AlertTimer <= 0) {
         setYr4Alert("Proximity Alert - YR4: " + getDateTimeString(days, startYear, startMonth, startDay));
     }
-
     drawText(10, 780, currentDate.c_str(), 1.0f, 1.0f, 1.0f);
     if (!godAlertText.empty() && godAlertTimer > 0) {
         drawText(10, 120, godAlertText.c_str(), 1.0f, 0.0f, 0.0f);
@@ -260,7 +235,6 @@ void display() {
     if (!yr4AlertText.empty() && yr4AlertTimer > 0) {
         drawText(10, 100, yr4AlertText.c_str(), 0.0f, 1.0f, 1.0f);
     }
-
     glutSwapBuffers();
 }
 
@@ -340,5 +314,11 @@ int main(int argc, char** argv) {
     glutIdleFunc(idle);
 
     glutMainLoop();
+
+    // Close the file when the program exits
+    if (alertFile.is_open()) {
+        alertFile.close();
+    }
+
     return 0;
 }

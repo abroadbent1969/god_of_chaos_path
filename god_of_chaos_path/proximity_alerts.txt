@@ -1,0 +1,15 @@
+Proximity Alert - APOPHIS: 1122-12-18
+Proximity Alert - YR4: 1133-12-27
+Proximity Alert - APOPHIS: 1137-09-09
+Proximity Alert - APOPHIS: 1153-12-27
+Proximity Alert - YR4: 1155-01-04
+Proximity Alert - APOPHIS: 1168-09-16
+Proximity Alert - YR4: 1180-01-11
+Proximity Alert - APOPHIS: 2031-12-18
+Proximity Alert - YR4: 2042-12-26
+Proximity Alert - APOPHIS: 2046-09-09
+Proximity Alert - APOPHIS: 2062-12-27
+Proximity Alert - YR4: 2064-01-04
+Proximity Alert - APOPHIS: 2077-09-16
+Proximity Alert - YR4: 2089-01-11
+Proximity Alert - APOPHIS: 2094-01-07
